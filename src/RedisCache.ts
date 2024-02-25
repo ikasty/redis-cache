@@ -4,8 +4,17 @@ export class RedisCache {
     private client: RedisClient;
     private localCache: { [key: string]: string | null } = {};
 
-    constructor(client: RedisClient) {
+    private static self: RedisCache | null;
+
+    private constructor(client: RedisClient) {
         this.client = client;
+    }
+
+    public static getInstance(client: RedisClient) {
+        if (!RedisCache.self) {
+            RedisCache.self = new RedisCache(client);
+        }
+        return RedisCache.self;
     }
 
     async write(key: string, value: string): Promise<void> {
