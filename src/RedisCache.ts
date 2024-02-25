@@ -4,7 +4,7 @@ export class RedisCache {
     private client: RedisClient;
     private localCache: { [key: string]: string | string[] | null } = {};
 
-    private static self: RedisCache | null;
+    private static self: RedisCache;
 
     private constructor(client: RedisClient) {
         this.client = client;
@@ -18,6 +18,9 @@ export class RedisCache {
     }
 
     public static getInstance() {
+        if (!RedisCache.self) {
+            throw "redis cache not set"
+        }
         return RedisCache.self;
     }
 
