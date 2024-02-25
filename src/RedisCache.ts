@@ -24,7 +24,7 @@ export class RedisCache {
         return RedisCache.self;
     }
 
-    async write(key: string, value: string): Promise<void> {
+    async set(key: string, value: string | string[]): Promise<void> {
         if (Array.isArray(value)) {
             await this.client.rpush(key, ...value)
         } else {
@@ -33,7 +33,7 @@ export class RedisCache {
         this.localCache[key] = value;
     }
 
-    async read(key: string): Promise<string | String[] | null> {
+    async get(key: string): Promise<string | string[] | null> {
         if (key in this.localCache) {
             return this.localCache[key];
         }
@@ -47,9 +47,5 @@ export class RedisCache {
 
         this.localCache[key] = listValue.length > 0 ? listValue : null;
         return this.localCache[key];
-    }
-
-    public getClient(): RedisClient {
-        return this.client;
     }
 }
