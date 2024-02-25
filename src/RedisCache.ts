@@ -2,7 +2,7 @@ import { RedisClient } from './RedisClient';
 
 export class RedisCache {
     private client: RedisClient;
-    private localCache: { [key: string]: string | null } = {};
+    private localCache: { [key: string]: string | string[] | null } = {};
 
     private static self: RedisCache | null;
 
@@ -18,17 +18,31 @@ export class RedisCache {
     }
 
     async write(key: string, value: string): Promise<void> {
-        await this.client.set(key, value);
+        if (Array.isArray(value)) {
+            await this.client.rpush(key, ...value)
+        } else {
+            await this.client.set(key, value);
+        }
         this.localCache[key] = value;
     }
 
-    async read(key: string): Promise<string | null> {
+    async read(key: string): Promise<string | String[] | null> {
         if (key in this.localCache) {
             return this.localCache[key];
         }
 
-        const value = await this.client.get(key);
-        this.localCache[key] = value;
-        return value;
+        const listValue = await this.client.lrange(key, 0, -1);
+        if (listValue.length == 0) {
+            const value = await this.client.get(key);
+            this.localCache[key] = value;
+            return value;
+        }
+
+        this.localCache[key] = listValue.length > 0 ? listValue : null;
+        return this.localCache[key];
+    }
+
+    public getClient(): RedisClient {
+        return this.client;
     }
 }
