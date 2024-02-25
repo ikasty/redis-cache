@@ -7,7 +7,15 @@
     "build": "tsc",
     "clean": "rimraf dist"
   },
-  "keywords": [],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ikasty/redis-cache.git"
+  },
+  "keywords": [
+    "redis",
+    "javascript",
+    "node"
+  ],
   "author": "",
   "license": "ISC",
   "devDependencies": {
