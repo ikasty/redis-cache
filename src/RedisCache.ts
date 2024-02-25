@@ -10,10 +10,14 @@ export class RedisCache {
         this.client = client;
     }
 
-    public static getInstance(client: RedisClient) {
-        if (!RedisCache.self) {
-            RedisCache.self = new RedisCache(client);
+    public static setInstance(client: RedisClient) {
+        if (RedisCache.self) {
+            throw "redis cache already setted"
         }
+        RedisCache.self = new RedisCache(client);
+    }
+
+    public static getInstance() {
         return RedisCache.self;
     }
 
