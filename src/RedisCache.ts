@@ -80,6 +80,18 @@ export class RedisCache {
         return value;
     }
 
+    async hgetall(key: string): Promise<{[field: string]: string | number} | null> {
+        if (key in this.hashCache) {
+            return this.hashCache[key];
+        }
+
+        const type = await this.client.type(key);
+        if (type !== 'hash') return null;
+        const hash = await this.client.hgetall(key);
+        this.hashCache[key] = hash;
+        return hash;
+    }
+
     async del(key: string, ...values: string[]): Promise<void> {
         const type = await this.client.type(key);
         if (type === 'set' && values.length > 0) {
