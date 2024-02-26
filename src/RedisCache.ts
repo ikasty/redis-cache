@@ -92,21 +92,24 @@ export class RedisCache {
         return hash;
     }
 
-    async del(key: string, ...values: string[]): Promise<void> {
+    async del(key: string, ...values: string[]): Promise<number> {
         const type = await this.client.type(key);
         if (type === 'set' && values.length > 0) {
-            await this.client.srem(key, ...values);
+            const result = await this.client.srem(key, ...values);
             values.forEach(value => this.setCache[key].delete(value));
+            return result;
         } else if (type === 'hash' && values.length > 0) {
-            await this.client.hdel(key, ...values);
+            const result = await this.client.hdel(key, ...values);
             values.forEach(value => delete this.hashCache[key][value]);
+            return result;
         } else if (type === 'string' || values.length === 0) {
-            await this.client.del(key);
+            const result = await this.client.del(key);
             delete this.keyCache[key];
             delete this.setCache[key];
             delete this.hashCache[key];
+            return result;
         } else {
-            return;
+            return 0;
         }
     }
 }
