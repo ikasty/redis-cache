@@ -4,7 +4,7 @@ export class RedisCache {
     private client: RedisClient;
     private keyCache: { [key: string]: string | null } = {};
     private setCache: { [key: string]: Set<string> } = {};
-    private hashCache: { [key: string]: Record<string, string | number> } = {};
+    private hashCache: { [key: string]: Record<string, string | null> } = {};
 
     private static self: RedisCache;
 
@@ -36,7 +36,7 @@ export class RedisCache {
         this.setCache[key] = new Set(value);
     }
 
-    async hadd(key: string, field: string, value: string | number) {
+    async hadd(key: string, field: string, value: string | null) {
         await this.client.hset(key, field, value);
         this.hashCache[key][field] = value;
     }
@@ -80,7 +80,7 @@ export class RedisCache {
         return value;
     }
 
-    async hgetall(key: string): Promise<{[field: string]: string | number} | null> {
+    async hgetall(key: string): Promise<{[field: string]: string | null} | null> {
         if (key in this.hashCache) {
             return this.hashCache[key];
         }

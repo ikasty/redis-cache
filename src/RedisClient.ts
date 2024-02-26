@@ -10,8 +10,8 @@ export interface RedisClient {
     smembers(key: string): Promise<string[]>;
     srem(key: string, ...values: string[]): Promise<number>;
 
-    hset(key: string, field: string, value: string | number): Promise<number>;
-    hget(key: string, field: string): Promise<string | number>;
+    hset(key: string, field: string, value: string | null): Promise<number>;
+    hget(key: string, field: string): Promise<string | null>;
     hgetall(key: string): Promise<{ [field: string]: string }>;
-    hdel(key: string, ...fields: (string | number)[]): Promise<number>;
+    hdel(key: string, ...fields: (string | null)[]): Promise<number>;
 }
