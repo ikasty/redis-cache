@@ -33,7 +33,8 @@ export class RedisCache {
 
     async sadd(key: string, value: string[]): Promise<void> {
         await this.client.sadd(key, ...value);
-        this.setCache[key] = new Set(value);
+        if (!(key in this.setCache)) this.setCache[key] = new Set();
+        value.forEach(v => this.setCache[key].add(v));
     }
 
     async hadd(key: string, field: string, value: string) {
