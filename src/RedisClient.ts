@@ -5,5 +5,5 @@ export interface RedisClient {
     sadd(key: string, ...values: string[]): Promise<number>;
     smembers(key: string): Promise<string[]>;
     srem(key: string, ...values: string[]): Promise<number>;
-    type(key: string): Promise<'none' | 'string' | 'list' | 'set' | 'zset' | 'hash'>;
+    type(key: string): Promise<string>;
 }
