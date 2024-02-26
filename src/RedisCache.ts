@@ -3,7 +3,8 @@ import { RedisClient } from './RedisClient';
 export class RedisCache {
     private client: RedisClient;
     private keyCache: { [key: string]: string | null } = {};
-    private setCache: { [key: string]: Set<string> }= {};
+    private setCache: { [key: string]: Set<string> } = {};
+    private hashCache: { [key: string]: Record<string, string | number> } = {};
 
     private static self: RedisCache;
 
@@ -31,8 +32,13 @@ export class RedisCache {
     }
 
     async sadd(key: string, value: string[]): Promise<void> {
-        await this.client.sadd(key, ...value)
+        await this.client.sadd(key, ...value);
         this.setCache[key] = new Set(value);
+    }
+
+    async hadd(key: string, field: string, value: string | number) {
+        await this.client.hset(key, field, value);
+        this.hashCache[key][field] = value;
     }
 
     async get(key: string): Promise<string | null> {
@@ -41,21 +47,36 @@ export class RedisCache {
         }
 
         const type = await this.client.type(key);
-        if (type !== 'string') return Promise.reject();
+        if (type !== 'string') return null;
+
         const value = await this.client.get(key);
         this.keyCache[key] = value;
         return value;
     }
 
-    async sget(key: string): Promise<Set<string>> {
+    async sget(key: string): Promise<Set<string> | null> {
         if (key in this.setCache) {
             return this.setCache[key];
         }
 
         const type = await this.client.type(key);
-        if (type !== 'set') return Promise.reject();
+        if (type !== 'set') return null;
+
         const value = new Set(await this.client.smembers(key));
         this.setCache[key] = value;
+        return value;
+    }
+
+    async hget(key: string, field: string): Promise<string | number | null> {
+        if (key in this.hashCache && field in this.hashCache[key]) {
+            return this.hashCache[key][field];
+        }
+
+        const type = await this.client.type(key);
+        if (type !== 'hash') return null;
+
+        const value = await this.client.hget(key, field);
+        if (value) this.hashCache[key][field] = value;
         return value;
     }
 
@@ -63,12 +84,15 @@ export class RedisCache {
         const type = await this.client.type(key);
         if (type === 'set' && values.length > 0) {
             await this.client.srem(key, ...values);
-            values.forEach(value => {
-                (this.setCache[key] as Set<string>).delete(value);
-            });
+            values.forEach(value => this.setCache[key].delete(value));
+        } else if (type === 'hash' && values.length > 0) {
+            await this.client.hdel(key, ...values);
+            values.forEach(value => delete this.hashCache[key][value]);
         } else if (type === 'string' || values.length === 0) {
             await this.client.del(key);
             delete this.keyCache[key];
+            delete this.setCache[key];
+            delete this.hashCache[key];
         } else {
             return;
         }
