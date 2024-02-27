@@ -5,6 +5,7 @@ export class RedisCache {
     private keyCache: { [key: string]: string | null } = {};
     private setCache: { [key: string]: Set<string> } = {};
     private hashCache: { [key: string]: Record<string, string> } = {};
+    private intCache: { [key: string]: number } = {};
 
     private static self: RedisCache;
 
@@ -27,6 +28,14 @@ export class RedisCache {
         await this.client.hset(key, field, value);
         if (!(key in this.hashCache)) this.hashCache[key] = {};
         this.hashCache[key][field] = value;
+    }
+
+    async incr(key: string) {
+        this.intCache[key] = await this.client.incr(key);
+        return this.intCache[key];
+    }
+    async getNum(key: string) {
+        return this.intCache[key];
     }
 
     async get(key: string): Promise<string | null> {
@@ -55,7 +64,7 @@ export class RedisCache {
         return value;
     }
 
-    async hget(key: string, field: string): Promise<string | number | null> {
+    async hget(key: string, field: string): Promise<string | null> {
         if (key in this.hashCache && field in this.hashCache[key]) {
             return this.hashCache[key][field];
         }

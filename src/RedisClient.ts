@@ -5,6 +5,7 @@ export interface RedisClient {
     get(key: string): Promise<string | null>;
     set(key: string, value: string): Promise<any>;
     del(...keys: string[]): Promise<number>;
+    incr(key: string): Promise<number>;
 
     sadd(key: string, ...values: string[]): Promise<number>;
     smembers(key: string): Promise<string[]>;
