@@ -63,9 +63,9 @@ export class RedisCache {
         const type = await this.client.type(key);
         if (type !== 'hash') return null;
 
-        const value = await this.client.hget(key, field);
-        if (value) this.hashCache[key][field] = value;
-        return value;
+        const hash = await this.client.hgetall(key);
+        if (hash) this.hashCache[key] = hash;
+        return hash[field];
     }
 
     async hgetall(key: string): Promise<{[field: string]: string | null} | null> {
@@ -76,7 +76,7 @@ export class RedisCache {
         const type = await this.client.type(key);
         if (type !== 'hash') return null;
         const hash = await this.client.hgetall(key);
-        this.hashCache[key] = hash;
+        if (hash) this.hashCache[key] = hash;
         return hash;
     }
 
