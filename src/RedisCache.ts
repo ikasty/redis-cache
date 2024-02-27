@@ -8,22 +8,8 @@ export class RedisCache {
 
     private static self: RedisCache;
 
-    private constructor(client: RedisClient) {
+    constructor(client: RedisClient) {
         this.client = client;
-    }
-
-    public static setInstance(client: RedisClient) {
-        if (RedisCache.self) {
-            throw "redis cache already setted"
-        }
-        RedisCache.self = new RedisCache(client);
-    }
-
-    public static getInstance() {
-        if (!RedisCache.self) {
-            throw "redis cache not set"
-        }
-        return RedisCache.self;
     }
 
     async add(key: string, value: string): Promise<void> {
