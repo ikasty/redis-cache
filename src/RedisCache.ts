@@ -25,6 +25,7 @@ export class RedisCache {
 
     async hadd(key: string, field: string, value: string) {
         await this.client.hset(key, field, value);
+        if (!(key in this.hashCache)) this.hashCache[key] = {};
         this.hashCache[key][field] = value;
     }
 
