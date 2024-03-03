@@ -1,12 +1,17 @@
 {
   "name": "redis-cache",
   "version": "1.0.0",
-  "main": "dist/src/index.js",
-  "types": "dist/src/index.d.ts",
+  "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
+    "postinstall": "npm run build --omit=dev",
     "test": "ts-node -r tsconfig-paths/register node_modules/jasmine/bin/jasmine",
     "coverage": "nyc report"
+  },
+  "exports": {
+    ".": {
+      "types": "./dist/*.d.ts"
+    }
   },
   "repository": {
     "type": "git",
