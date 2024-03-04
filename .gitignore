@@ -6,6 +6,9 @@ dist/
 *.js.map
 *.d.ts
 
+# Tests
+.nyc_output
+
 # Optional npm cache directory
 .npm
 
