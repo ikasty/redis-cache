@@ -32,7 +32,6 @@ export class RedisCache {
 
     const result = await this.client.sadd(key, ...value);
     this.types[key] = 'set';
-    if (result == 0) return 0;
 
     if (!(key in this.setCache) || !(this.setCache[key] instanceof Set))
       this.setCache[key] = new Set<string>();
@@ -44,7 +43,6 @@ export class RedisCache {
     if (key in this.types && this.types[key] !== 'hash') return 0;
     const result = await this.client.hset(key, field, value);
     this.types[key] = 'hash';
-    if (result == 0) return 0;
 
     if (!(key in this.hashCache)) this.hashCache[key] = {};
     this.hashCache[key][field] = value;
