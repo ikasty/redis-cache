@@ -119,7 +119,8 @@ export class RedisCache {
       return result;
     } else if (type === 'hash' && values.length > 0) {
       const result = await this.client.hdel(key, ...values);
-      values.forEach(value => delete this.hashCache[key][value]);
+      if (this.hashCache[key])
+        values.forEach(value => delete this.hashCache[key][value]);
       return result;
     } else if (type === 'string' || values.length === 0) {
       const result = await this.client.del(key);
